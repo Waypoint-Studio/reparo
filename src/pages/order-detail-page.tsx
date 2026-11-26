@@ -2,7 +2,7 @@ import { useState, type ReactElement } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api } from '@/api/client';
 import { Icon } from '@/components/icons';
-import { TicketNumber } from '@/components/order-row';
+import { CodeChip } from '@/components/order-row';
 import { Card, ErrorBox, Spinner, StatusPill } from '@/components/ui';
 import { STATUS_LABEL, deviceLabel, formatDate, formatDateTime, formatMoney, partsTotal } from '@/domain/labels';
 import type { ActionResult, RepairOrder } from '@/domain/types';
@@ -89,18 +89,14 @@ export const OrderDetailPage = (): ReactElement => {
         <Icon name="back" size={18} /> Órdenes
       </Link>
 
-      <header className="ticket ticket--large">
-        <span className="ticket__stub">
-          <TicketNumber code={order.code} large />
-        </span>
-        <span className="ticket__body">
-          <h1 className="ticket__device">{deviceLabel(order)}</h1>
-          <span className="ticket__issue">{order.issue}</span>
-          <span className="ticket__customer">Recibido el {formatDate(order.createdAt)}</span>
-        </span>
-        <span className="ticket__status">
+      <header className="detail-head">
+        <div className="detail-head__meta">
+          <CodeChip code={order.code} />
           <StatusPill status={order.status} />
-        </span>
+        </div>
+        <h1>{deviceLabel(order)}</h1>
+        <p className="detail-head__issue">{order.issue}</p>
+        <p className="muted small">Recibido el {formatDate(order.createdAt)} por {order.technician}</p>
       </header>
 
       <Card className="card--action">

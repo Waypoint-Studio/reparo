@@ -1,48 +1,63 @@
 import { useState, type ReactElement } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '@/api/client';
+import { SHOP_NAME } from '@/api/mock/messages';
 import { Icon } from '@/components/icons';
 import { useToast } from '@/components/toast';
-import { Card, ErrorBox, Spinner } from '@/components/ui';
+import { Card, ErrorBox, PageHeader, Spinner } from '@/components/ui';
 import { ACTIVE_STATUSES, STATUS_LABEL, UNCLAIMED_AFTER_DAYS, daysSince, deviceLabel, formatMoney } from '@/domain/labels';
 import type { DashboardSummary } from '@/domain/types';
 import { errorMessage, useQuery } from '@/hooks/use-query';
 
-const plural = (count: number, one: string, many: string): string => `${count} ${count === 1 ? one : many}`;
-
-const Today = ({ summary }: { readonly summary: DashboardSummary }): ReactElement => {
+const Stats = ({ summary }: { readonly summary: DashboardSummary }): ReactElement => {
   const active = ACTIVE_STATUSES.reduce((sum, status) => sum + summary.byStatus[status], 0);
-  const ready = summary.byStatus.listo;
-  const waiting = summary.byStatus.esperando_aprobacion;
+  const items: readonly { label: string; value: string; note: string }[] = [
+    { label: 'En el local', value: String(active), note: 'equipos sin entregar' },
+    { label: 'Listos para recoger', value: String(summary.byStatus.listo), note: `${summary.unclaimed.length} con más de ${UNCLAIMED_AFTER_DAYS} días` },
+    { label: 'Cobrado este mes', value: formatMoney(summary.revenueThisMonth), note: `${summary.deliveredThisMonth} equipos entregados` },
+    { label: 'Tiempo de reparación', value: `${summary.avgRepairDays.toFixed(1).replace('.', ',')} días`, note: 'promedio por equipo' },
+  ];
   return (
-    <section className="today">
-      <h1 className="today__headline">
-        {plural(active, 'equipo', 'equipos')} en el local
-      </h1>
-      <p className="today__sentence">
-        {plural(ready, 'está listo', 'están listos')} para recoger
-        {summary.unclaimed.length > 0 ? ` y ${plural(summary.unclaimed.length, 'lleva', 'llevan')} más de ${UNCLAIMED_AFTER_DAYS} días esperando` : ''}.{' '}
-        {waiting > 0 ? `${plural(waiting, 'cliente no ha', 'clientes no han')} respondido el presupuesto.` : 'Ningún presupuesto pendiente de respuesta.'}
-      </p>
-      <dl className="today__facts">
-        <div>
-          <dt>Cobrado este mes</dt>
-          <dd>{formatMoney(summary.revenueThisMonth)}</dd>
+    <dl className="stats">
+      {items.map((item) => (
+        <div key={item.label} className="stats__item">
+          <dt>{item.label}</dt>
+          <dd className="stats__value">{item.value}</dd>
+          <dd className="stats__note">{item.note}</dd>
         </div>
-        <div>
-          <dt>Equipos entregados</dt>
-          <dd>{summary.deliveredThisMonth}</dd>
-        </div>
-        <div>
-          <dt>Días promedio en reparar</dt>
-          <dd>{summary.avgRepairDays.toFixed(1).replace('.', ',')}</dd>
-        </div>
-      </dl>
-      <Link to="/ordenes/nueva" className="btn btn--primary today__cta">
-        <Icon name="plus" size={18} />
-        Recibir equipo
-      </Link>
-    </section>
+      ))}
+    </dl>
+  );
+};
+
+const Pipeline = ({ summary }: { readonly summary: DashboardSummary }): ReactElement => {
+  const total = ACTIVE_STATUSES.reduce((sum, status) => sum + summary.byStatus[status], 0) || 1;
+  return (
+    <Card>
+      <div className="card__head">
+        <h2 className="card__title">Flujo del taller</h2>
+        <Link to="/ordenes" className="link-more">
+          Ver órdenes
+        </Link>
+      </div>
+      <div className="flowbar" role="img" aria-label="Distribución de equipos por estado">
+        {ACTIVE_STATUSES.map((status) => (
+          <span
+            key={status}
+            className={`flowbar__seg flowbar__seg--${status}`}
+            style={{ flexGrow: summary.byStatus[status] / total }}
+          />
+        ))}
+      </div>
+      <div className="legend">
+        {ACTIVE_STATUSES.map((status) => (
+          <Link key={status} to={`/ordenes?estado=${status}`} className={`legend__item legend__item--${status}`}>
+            <span className="legend__count">{summary.byStatus[status]}</span>
+            <span className="legend__label">{STATUS_LABEL[status]}</span>
+          </Link>
+        ))}
+      </div>
+    </Card>
   );
 };
 
@@ -73,13 +88,12 @@ const Unclaimed = ({ summary, onChange }: { readonly summary: DashboardSummary; 
         return (
           <li key={order.id} className="unclaimed">
             <Link to={`/ordenes/${order.id}`} className="unclaimed__info">
-              <span className="unclaimed__days">
-                <strong>{daysSince(order.readyAt ?? order.createdAt)}</strong> días
-              </span>
+              <span className="unclaimed__days">{daysSince(order.readyAt ?? order.createdAt)} d</span>
               <span>
                 <span className="strong block">{deviceLabel(order)}</span>
-                <span className="small block">{order.customer.name}</span>
-                <span className="unclaimed__meta">{lastReminder}</span>
+                <span className="unclaimed__meta">
+                  {order.customer.name}. {lastReminder}
+                </span>
               </span>
             </Link>
             <button type="button" className="btn btn--whatsapp btn--small" onClick={() => remind(order.id)} disabled={sending === order.id}>
@@ -105,24 +119,35 @@ export const DashboardPage = (): ReactElement => {
 
   return (
     <div className={`page${loading ? ' page--refreshing' : ''}`}>
-      <Today summary={data} />
-
-      <section className="tray" aria-label="Equipos por estado">
-        {ACTIVE_STATUSES.map((status) => (
-          <Link key={status} to={`/ordenes?estado=${status}`} className={`tray__slot tray__slot--${status}`}>
-            <span className="tray__count">{data.byStatus[status]}</span>
-            <span className="tray__label">{STATUS_LABEL[status]}</span>
+      <PageHeader
+        title="Tablero"
+        subtitle={SHOP_NAME}
+        action={
+          <Link to="/ordenes/nueva" className="btn btn--primary">
+            <Icon name="plus" size={18} />
+            Recibir equipo
           </Link>
-        ))}
-      </section>
+        }
+      />
+
+      <Stats summary={data} />
+      <Pipeline summary={data} />
 
       <div className="grid-2">
-        <Card className="card--attention">
-          <h2 className="card__title">Equipos sin recoger</h2>
+        <Card className="card--glow">
+          <div className="card__head">
+            <h2 className="card__title">Equipos sin recoger</h2>
+            <span className="count-badge">{data.unclaimed.length}</span>
+          </div>
           <Unclaimed summary={data} onChange={reload} />
         </Card>
         <Card>
-          <h2 className="card__title">Repuestos por agotarse</h2>
+          <div className="card__head">
+            <h2 className="card__title">Repuestos por agotarse</h2>
+            <Link to="/repuestos" className="link-more">
+              Inventario
+            </Link>
+          </div>
           {data.lowStock.length === 0 ? (
             <p className="muted">Todo el inventario está por encima del mínimo.</p>
           ) : (
@@ -137,9 +162,6 @@ export const DashboardPage = (): ReactElement => {
               ))}
             </ul>
           )}
-          <Link to="/repuestos" className="link-more">
-            Ver inventario
-          </Link>
         </Card>
       </div>
     </div>

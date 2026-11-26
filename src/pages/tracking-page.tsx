@@ -2,7 +2,7 @@ import type { ReactElement } from 'react';
 import { useParams } from 'react-router-dom';
 import { api } from '@/api/client';
 import { Icon } from '@/components/icons';
-import { TicketNumber } from '@/components/order-row';
+import { CodeChip } from '@/components/order-row';
 import { ErrorBox, Spinner } from '@/components/ui';
 import { STATUS_LABEL, formatDate, formatDateTime, formatMoney } from '@/domain/labels';
 import type { OrderStatus, PublicTracking } from '@/domain/types';
@@ -50,9 +50,9 @@ export const TrackingPage = (): ReactElement => {
         {data === null && error === null ? <Spinner /> : null}
         {data === null ? null : (
           <>
-            <div className="tracking__stub">
+            <div className="tracking__head">
               <p className="tracking__shop">{data.shopName}</p>
-              <TicketNumber code={data.code} large />
+              <CodeChip code={data.code} />
             </div>
             <h1 className="tracking__title">{HEADLINE[data.status]}</h1>
             <p className="muted">{data.deviceLabel}</p>
