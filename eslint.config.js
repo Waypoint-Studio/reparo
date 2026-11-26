@@ -5,7 +5,7 @@ import sonarjs from 'eslint-plugin-sonarjs';
 import reactHooks from 'eslint-plugin-react-hooks';
 
 export default tseslint.config(
-  { ignores: ['node_modules'] },
+  { ignores: ['node_modules', 'docs'] },
   js.configs.recommended,
   ...tseslint.configs.strict,
   sonarjs.configs.recommended,

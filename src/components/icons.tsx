@@ -15,7 +15,8 @@ export type IconName =
   | 'camera'
   | 'link'
   | 'refresh'
-  | 'shield';
+  | 'shield'
+  | 'phone';
 
 const PATHS: Readonly<Record<IconName, ReactElement>> = {
   home: <path d="M3 11.5 12 4l9 7.5M5.5 9.5V20h13V9.5" />,
@@ -34,6 +35,7 @@ const PATHS: Readonly<Record<IconName, ReactElement>> = {
   camera: <path d="M4 8h3l2-3h6l2 3h3v11H4V8Zm8 9a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />,
   link: <path d="M10 14a4 4 0 0 0 5.7 0l3-3A4 4 0 0 0 13 5.3l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" />,
   refresh: <path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6" />,
+  phone: <path d="M8 3h8a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm3 15h2" />,
   shield: <path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.3 7.5 9.5 4.3-1.2 7.5-4.9 7.5-9.5V6L12 3Zm-3 9 2 2 4-4" />,
 };
 

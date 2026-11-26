@@ -42,8 +42,8 @@ export const Layout = (): ReactElement => {
     <div className="shell">
       <aside className="sidebar">
         <div className="brand">
-          <span className="brand__mark">
-            <Icon name="check" size={18} />
+          <span className="brand__mark" aria-hidden="true">
+            <Icon name="phone" size={18} />
           </span>
           <div>
             <p className="brand__name">Reparo</p>

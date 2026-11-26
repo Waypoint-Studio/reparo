@@ -9,23 +9,22 @@ const ageLabel = (order: RepairOrder): string => {
   if (days === 0) {
     return 'Hoy';
   }
-  return days === 1 ? 'Ayer' : `Hace ${days} días`;
+  return days === 1 ? 'Ayer' : `${days} d`;
 };
 
+export const CodeChip = ({ code }: { readonly code: string }): ReactElement => <span className="code-chip">{code}</span>;
+
 export const OrderRow = ({ order }: { readonly order: RepairOrder }): ReactElement => (
-  <Link to={`/ordenes/${order.id}`} className="order-row">
-    <div className="order-row__main">
-      <p className="order-row__title">
-        <span className="order-row__code">{order.code}</span>
-        {deviceLabel(order)}
-      </p>
-      <p className="order-row__meta">
-        {order.customer.name} · {order.issue}
-      </p>
-    </div>
-    <div className="order-row__side">
+  <Link to={`/ordenes/${order.id}`} className="row">
+    <span className="row__code">{order.code}</span>
+    <span className="row__main">
+      <span className="row__title">{deviceLabel(order)}</span>
+      <span className="row__sub">{order.issue}</span>
+    </span>
+    <span className="row__customer">{order.customer.name}</span>
+    <span className="row__status">
       <StatusPill status={order.status} />
-      <span className="order-row__age">{ageLabel(order)}</span>
-    </div>
+    </span>
+    <span className="row__age">{ageLabel(order)}</span>
   </Link>
 );

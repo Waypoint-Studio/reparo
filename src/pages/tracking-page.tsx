@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { useParams } from 'react-router-dom';
 import { api } from '@/api/client';
 import { Icon } from '@/components/icons';
+import { CodeChip } from '@/components/order-row';
 import { ErrorBox, Spinner } from '@/components/ui';
 import { STATUS_LABEL, formatDate, formatDateTime, formatMoney } from '@/domain/labels';
 import type { OrderStatus, PublicTracking } from '@/domain/types';
@@ -49,11 +50,12 @@ export const TrackingPage = (): ReactElement => {
         {data === null && error === null ? <Spinner /> : null}
         {data === null ? null : (
           <>
-            <p className="tracking__shop">{data.shopName}</p>
+            <div className="tracking__head">
+              <p className="tracking__shop">{data.shopName}</p>
+              <CodeChip code={data.code} />
+            </div>
             <h1 className="tracking__title">{HEADLINE[data.status]}</h1>
-            <p className="muted">
-              {data.deviceLabel} · Orden {data.code}
-            </p>
+            <p className="muted">{data.deviceLabel}</p>
             {data.status === 'cancelado' ? null : <Progress tracking={data} />}
             <div className="tracking__facts">
               {data.quote !== null && data.quote > 0 ? (
@@ -79,7 +81,7 @@ export const TrackingPage = (): ReactElement => {
         )}
       </div>
       <p className="tracking__footer">
-        Seguimiento con <strong>Reparo</strong> · Demo
+        Seguimiento con <strong>Reparo</strong>, versión de demostración
       </p>
     </div>
   );

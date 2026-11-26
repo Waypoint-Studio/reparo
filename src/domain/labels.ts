@@ -14,7 +14,7 @@ export const STATUS_TONE: Readonly<Record<OrderStatus, string>> = {
   recibido: 'neutral',
   diagnostico: 'info',
   esperando_aprobacion: 'warn',
-  en_reparacion: 'info',
+  en_reparacion: 'progress',
   listo: 'good',
   entregado: 'muted',
   cancelado: 'muted',

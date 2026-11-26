@@ -2,8 +2,9 @@ import { useState, type ReactElement } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api } from '@/api/client';
 import { Icon } from '@/components/icons';
+import { CodeChip } from '@/components/order-row';
 import { Card, ErrorBox, Spinner, StatusPill } from '@/components/ui';
-import { STATUS_LABEL, deviceLabel, formatDateTime, formatMoney, partsTotal } from '@/domain/labels';
+import { STATUS_LABEL, deviceLabel, formatDate, formatDateTime, formatMoney, partsTotal } from '@/domain/labels';
 import type { ActionResult, RepairOrder } from '@/domain/types';
 import { useQuery } from '@/hooks/use-query';
 import { OrderActions } from '@/pages/order-actions';
@@ -88,13 +89,14 @@ export const OrderDetailPage = (): ReactElement => {
         <Icon name="back" size={18} /> Órdenes
       </Link>
 
-      <header className="detail-header">
-        <div>
-          <p className="detail-header__code">{order.code}</p>
-          <h1>{deviceLabel(order)}</h1>
-          <p className="muted">{order.issue}</p>
+      <header className="detail-head">
+        <div className="detail-head__meta">
+          <CodeChip code={order.code} />
+          <StatusPill status={order.status} />
         </div>
-        <StatusPill status={order.status} />
+        <h1>{deviceLabel(order)}</h1>
+        <p className="detail-head__issue">{order.issue}</p>
+        <p className="muted small">Recibido el {formatDate(order.createdAt)} por {order.technician}</p>
       </header>
 
       <Card className="card--action">
@@ -124,9 +126,16 @@ export const OrderDetailPage = (): ReactElement => {
 
       <Card>
         <h2 className="card__title">Equipo al recibir</h2>
-        <p className="muted">
-          Color {order.device.color || 'sin registrar'} · Técnico {order.technician}
-        </p>
+        <dl className="facts facts--inline">
+          <div>
+            <dt>Color</dt>
+            <dd>{order.device.color || 'Sin registrar'}</dd>
+          </div>
+          <div>
+            <dt>Técnico</dt>
+            <dd>{order.technician}</dd>
+          </div>
+        </dl>
         <div className="tags">
           {order.conditions.map((condition) => (
             <span key={condition} className="tag">

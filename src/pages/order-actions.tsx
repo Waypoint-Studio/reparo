@@ -110,7 +110,7 @@ const Repair = ({ order, onDone }: ActionProps): ReactElement => {
         <select value={selected} onChange={(event) => setPartId(event.target.value)} aria-label="Repuesto">
           {available.map((part) => (
             <option key={part.id} value={part.id}>
-              {part.name} · {formatMoney(part.price)} · quedan {part.stock}
+              {part.name}, {formatMoney(part.price)} (quedan {part.stock})
             </option>
           ))}
         </select>
@@ -162,7 +162,7 @@ const Deliver = ({ order, onDone }: ActionProps): ReactElement => {
         </label>
       </div>
       <p className="muted">
-        Abono {formatMoney(order.deposit)} · Cobrar al entregar: <strong>{formatMoney(balance)}</strong>
+        Ya abonó {formatMoney(order.deposit)}. Cobrar al entregar: <strong>{formatMoney(balance)}</strong>
       </p>
       <div className="action__buttons">
         <button type="submit" className="btn btn--primary" disabled={busy}>

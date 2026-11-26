@@ -79,7 +79,7 @@ export const OrdersPage = (): ReactElement => {
         </Empty>
       ) : null}
       {data !== null && data.length > 0 ? (
-        <div className={`order-list${loading ? ' page--refreshing' : ''}`}>
+        <div className={`list${loading ? ' page--refreshing' : ''}`}>
           {data.map((order) => (
             <OrderRow key={order.id} order={order} />
           ))}
